@@ -17,15 +17,26 @@ const controller = {
 		})
 	},
 	search: (req, res) => {
-		const  { keywords} = req.query 
-		let results = products.filter(product => product.name.toLowerCase() === keywords.toLowerCase())
+		const { keywords } = req.query
+		const texto = keywords.toLowerCase()
+		let lista = []
 		
-		res.render("results", {
+		let results = products.forEach(product => {
+			let busqueda = product.name.toLowerCase()
+			if(busqueda.indexOf(texto) !== -1){
+				lista.push(product)
+				
+			}
+		})
+
+		res.render("results",{
+			lista,
 			keywords,
-			results,
 			toThousand
 		})
-	},
-};
+	
+		
+	}
+}
 
 module.exports = controller;
