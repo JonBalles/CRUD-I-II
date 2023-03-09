@@ -38,7 +38,6 @@ const controller = {
 
 		let lastId = products[products.length - 1].id
 
-
 		let newProduct = { 
 			id: lastId + 1,
 			name: req.body.name,
@@ -46,7 +45,7 @@ const controller = {
 			discount: req.body.discount,
 			category: req.body.category,
 			description: req.body.description,
-			image:"default-image.png",
+			image: req.file ? req.file.filename : 'default-image.png'
 
 		}
 		products.push(newProduct)
@@ -69,19 +68,32 @@ const controller = {
 	},
 	// Update - Method to update
 	update: (req, res) => {
-		let productId = +req.params.id
-
-		products.forEach(product => {
-		 if(product.id === productId){
-			
-			product.name = req.body.name,
-			product.price = req.body.price,
-			product.discount = req.body.discount,
-			product.category = req.body.category,
-			product.description = req.body.description
-		 }	
-		});
-		writeJson(products)
+		
+		const { name, price, category, description, discount} = req.body;
+		
+		const productsModify = products.map((product) => {
+			if (product.id === +req.params.id) {
+			  let productModify = {
+				...product,
+				name: name.trim(),
+				price: +price,
+				discount: +discount,
+				category,
+				description: description.trim(),
+				image: req.file ? req.file.filename : product.image,
+			  };
+	
+			  if (req.file) {
+				fs.existsSync(`./public/image/products/${product.image}`) &&
+				fs.unlinkSync(`./public/image/products/${product.image}`);
+			  }
+	
+			  return productModify;
+			}
+			return product;
+		  });
+	
+		writeJson(productsModify)
 
 		res.redirect("/products")
 	},
